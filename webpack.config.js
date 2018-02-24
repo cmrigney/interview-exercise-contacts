@@ -36,10 +36,15 @@ module.exports = {
                 loader: "source-map-loader"
             },
 
-            //SVG files
+            //font files
             {
-                test: /\.svg$/,
-                loader: 'svg-inline-loader'
+                test: /\.(png|woff|woff2|eot|ttf|svg)$/,
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    outputPath: 'css/',
+                    publicPath: './'
+                }
             },
 
             //All files with '.css'

@@ -1,16 +1,18 @@
 import * as React from 'react';
-import './App.css';
+import { Container, Header, Button, Segment } from 'semantic-ui-react';
+import Contacts from './contacts';
+import './sass/app.scss';
 
 class App extends React.Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
+      <div className="app">
+        <Container text>
+          <Header as="h1">Contact Manager</Header>
+          <Segment>
+            <Contacts/>
+          </Segment>
+        </Container> 
       </div>
     );
   }
