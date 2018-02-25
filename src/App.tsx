@@ -8,7 +8,7 @@ class App extends React.Component {
     return (
       <div className="app">
         <Container text>
-          <Header as="h1">Contact Manager</Header>
+          <Header as="h1" className="page-title">Contact Manager</Header>
           <Segment>
             <Contacts/>
           </Segment>

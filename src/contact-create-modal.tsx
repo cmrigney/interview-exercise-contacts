@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { Contact } from './models/contact';
 import * as ContactService from "./services/contact-service";
+import * as PhoneFormatterService from "./services/phone-formatter-service";
 import { Button, Modal, Container, Icon, Form, Message, Dimmer, Loader } from 'semantic-ui-react';
+import MaskedInput from "react-maskedinput";
 import './sass/contact-create-modal.scss';
 
 export interface ContactCreateModalProps {
@@ -70,7 +72,8 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
     if(!this.state.contact.name.trim()) {
       fullNameValid = false;
     }
-    if(!this.state.contact.number.trim()) {
+    if(!this.state.contact.number.trim() ||
+       !PhoneFormatterService.isValidLocalPhoneNumber(this.state.contact.number)) {
       phoneNumberValid = false;
     }
     if(!this.state.contact.context.trim()) {
@@ -87,7 +90,7 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
 
     if(!valid) {
       this.setState({
-        error: 'Please fill out the fields in red.'
+        error: 'Please fill out the fields in red completely.'
       });
     }
 
@@ -102,8 +105,14 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
       loading: true
     });
 
+    const standardizedNumber = PhoneFormatterService.localToStandardFormat(this.state.contact.number);
+
     try {
-      await ContactService.createContact(this.state.contact);
+      await ContactService.createContact({
+        name: this.state.contact.name,
+        number: standardizedNumber,
+        context: this.state.contact.context
+      });
       this.setState({
        loading: false
       });
@@ -129,13 +138,12 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
           <Modal.Content>
             <Form onSubmit={() => this.create()}>
               <Form.Field>
-                <Form.Input label='Full Name' placeholder='Full Name' autoFocus onChange={this.fullNameChanged} error={!this.state.fullNameValid} />
+                <Form.Input label='Full Name' maxLength="32" placeholder='Full Name' autoFocus onChange={this.fullNameChanged} error={!this.state.fullNameValid} />
+              </Form.Field>
+              <Form.Field control={MaskedInput} label='Phone Number' mask='(111)-111-1111' onChange={this.phoneNumberChanged} error={!this.state.phoneNumberValid}>
               </Form.Field>
               <Form.Field>
-                <Form.Input label='Phone Number' placeholder='Phone Number' onChange={this.phoneNumberChanged} error={!this.state.phoneNumberValid} />
-              </Form.Field>
-              <Form.Field>
-                <Form.Input label='Context' placeholder='Context' onChange={this.contextChanged} error={!this.state.contextValid} />
+                <Form.Input label='Context' maxLength="32" placeholder='Context' onChange={this.contextChanged} error={!this.state.contextValid} />
               </Form.Field>
               <input type="submit" style={{ display: 'none' }}/> {/* workaround to make ENTER work */}
             </Form>

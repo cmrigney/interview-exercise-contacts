@@ -13,6 +13,7 @@
     "node-sass": "^4.7.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-maskedinput": "^4.0.1",
     "sass-loader": "^6.0.6",
     "semantic-ui-css": "^2.3.0",
     "semantic-ui-react": "^0.78.2",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/node": "^9.4.6",
     "@types/react": "^16.0.38",
-    "@types/react-dom": "^16.0.4"
+    "@types/react-dom": "^16.0.4",
+    "@types/react-maskedinput": "^4.0.3"
   }
 }

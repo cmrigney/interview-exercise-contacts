@@ -4,7 +4,9 @@ import axios from 'axios';
 import { Contact } from './models/contact';
 import * as ContactService from './services/contact-service';
 import * as LoggingService from "./services/logging-service";
+import * as PhoneFormatterService from "./services/phone-formatter-service";
 import ContactCreateModal from './contact-create-modal';
+import './sass/contacts.scss';
 
 const CONTACTS_PER_PAGE = 10;
 
@@ -31,7 +33,17 @@ export default class Contacts extends React.Component<{}, ContactsState> {
 
   fetchContactData = async () => {
     try {
-      const contacts = await ContactService.fetchContacts();
+      let contacts = await ContactService.fetchContacts();
+
+      //pre-format the numbers to local format for performance reasons
+      contacts = contacts.map((c): Contact => {
+        return {
+          name: c.name,
+          context: c.context,
+          number: PhoneFormatterService.standardToLocalFormat(c.number)
+        };
+      });
+
       this.setState({
         loading: false,
         contacts: contacts,
@@ -70,13 +82,13 @@ export default class Contacts extends React.Component<{}, ContactsState> {
         <Grid>
           <Grid.Row>
             <Grid.Column floated="left" width={5} verticalAlign="middle">
-              <Header as="h2">Contacts</Header>
+              <Header as="h2" className="contact-header">Contacts</Header>
             </Grid.Column>
             <Grid.Column floated="right" width={5}>
               <Button primary floated="right" icon labelPosition="left" onClick={() => this.setState({ createModalOpen: true })}><Icon name='plus' /> New Contact</Button>
             </Grid.Column>
           </Grid.Row>
-          <Grid.Row>
+          <Grid.Row className="contacts-row">
             <Grid.Column>
               <Dimmer inverted active={this.state.loading}>
                 <Loader>Loading</Loader>
