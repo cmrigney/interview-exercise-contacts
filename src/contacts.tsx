@@ -1,13 +1,16 @@
 import * as React from 'react';
-import { Button, Table, Grid, Header, Icon, Dimmer, Loader } from 'semantic-ui-react';
+import { Button, Table, Grid, Header, Icon, Dimmer, Loader, Menu } from 'semantic-ui-react';
 import axios from 'axios';
 import { Contact } from './models/contact';
 import * as ContactService from './services/contact-service';
 import * as LoggingService from "./services/logging-service";
 import ContactCreateModal from './contact-create-modal';
 
+const CONTACTS_PER_PAGE = 10;
+
 interface ContactsState {
   contacts?: Array<Contact>;
+  currentPage: number;
   loading: boolean;
   error?: string;
   createModalOpen: boolean;
@@ -19,7 +22,8 @@ export default class Contacts extends React.Component<{}, ContactsState> {
 
     this.state = {
       loading: true,
-      createModalOpen: false
+      createModalOpen: false,
+      currentPage: 1
     };
 
     this.fetchContactData();
@@ -30,7 +34,8 @@ export default class Contacts extends React.Component<{}, ContactsState> {
       const contacts = await ContactService.fetchContacts();
       this.setState({
         loading: false,
-        contacts: contacts 
+        contacts: contacts,
+        currentPage: 1
       });
     }
     catch(err) {
@@ -42,9 +47,23 @@ export default class Contacts extends React.Component<{}, ContactsState> {
     }
   }
 
-  render() {
-    const dimmerOpts = (this.state.loading ? { active: true } : {});
+  getNumberOfPages = () => {
+    if(!this.state.contacts)
+      return 1;
+    else
+      return Math.ceil(this.state.contacts.length / CONTACTS_PER_PAGE);
+  }
 
+  getPagedContacts = () => {
+    if(!this.state.contacts)
+      return this.state.contacts;
+    
+    const start = (this.state.currentPage - 1) * CONTACTS_PER_PAGE;
+    const end = start + CONTACTS_PER_PAGE; // slice does bounds checking for us, so it's ok if it goes over
+    return this.state.contacts.slice(start, end);
+  }
+
+  render() {
     return (
       <div>
         <ContactCreateModal open={this.state.createModalOpen} onContactAdded={() => this.fetchContactData()} onClose={() => this.setState({ createModalOpen: false })} />
@@ -59,7 +78,7 @@ export default class Contacts extends React.Component<{}, ContactsState> {
           </Grid.Row>
           <Grid.Row>
             <Grid.Column>
-              <Dimmer inverted {...dimmerOpts}>
+              <Dimmer inverted active={this.state.loading}>
                 <Loader>Loading</Loader>
               </Dimmer>
               <Table celled>
@@ -71,7 +90,7 @@ export default class Contacts extends React.Component<{}, ContactsState> {
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  {(this.state.contacts || []).map((contact) =>
+                  {(this.getPagedContacts() || []).map((contact) =>
                     <Table.Row key={contact.name}>
                       <Table.Cell>{contact.name}</Table.Cell>
                       <Table.Cell>{contact.number}</Table.Cell>
@@ -79,6 +98,24 @@ export default class Contacts extends React.Component<{}, ContactsState> {
                     </Table.Row>
                   )}
                 </Table.Body>
+                  <Table.Footer>
+                  <Table.Row>
+                    <Table.HeaderCell colSpan='3'>
+                      <Menu floated='right' pagination>
+                        <Menu.Item as='a' icon disabled={this.state.currentPage == 1} onClick={() => this.setState({ currentPage: this.state.currentPage - 1 })}>
+                          <Icon name='chevron left' />
+                        </Menu.Item>
+                        {Array.from(Array(this.getNumberOfPages()).keys(), (k) => k + 1).map((n) => 
+                          // Array.from(Array(...).keys()) maps 1...N
+                          <Menu.Item key={n} as='a' active={this.state.currentPage == n} onClick={() => this.setState({ currentPage: n })}>{n}</Menu.Item>
+                        )}
+                        <Menu.Item as='a' icon disabled={this.state.currentPage == Math.ceil((this.state.contacts || []).length / CONTACTS_PER_PAGE)} onClick={() => this.setState({ currentPage: this.state.currentPage + 1 })}>
+                          <Icon name='chevron right' />
+                        </Menu.Item>
+                      </Menu>
+                    </Table.HeaderCell>
+                  </Table.Row>
+                </Table.Footer>
               </Table>
             </Grid.Column>
           </Grid.Row>

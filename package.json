@@ -23,7 +23,7 @@
     "webpack": "^3.11.0"
   },
   "scripts": {
-    "start": "npx json-server db.json --static ./dist",
+    "start": "npx json-server db.json --static ./dist --id name",
     "build": "npx webpack",
     "watch": "npx webpack --watch"
   },
