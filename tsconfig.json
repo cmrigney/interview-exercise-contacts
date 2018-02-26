@@ -7,7 +7,8 @@
       "target": "es5",
       "lib": [ "es5", "es6", "dom", "es2015.promise" ],
       "jsx": "react",
-      "moduleResolution": "node"
+      "moduleResolution": "node",
+      "allowSyntheticDefaultImports": true
     },
     "include": [
       "./src/**/*"

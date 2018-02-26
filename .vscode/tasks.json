@@ -12,6 +12,14 @@
       "type": "npm",
       "script": "start",
       "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
     }
   ]
 }

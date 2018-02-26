@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Button, Table, Grid, Header, Icon, Dimmer, Loader, Menu } from 'semantic-ui-react';
+import { Button, Table, Grid, Header, Icon, Dimmer, Loader, Menu, Message } from 'semantic-ui-react';
 import axios from 'axios';
 import { Contact } from './models/contact';
-import * as ContactService from './services/contact-service';
-import * as LoggingService from "./services/logging-service";
-import * as PhoneFormatterService from "./services/phone-formatter-service";
+import ContactService from './services/contact-service';
+import LoggingService from "./services/logging-service";
+import PhoneFormatterService from "./services/phone-formatter-service";
 import ContactCreateModal from './contact-create-modal';
 import './sass/contacts.scss';
 
@@ -35,7 +35,7 @@ export default class Contacts extends React.Component<{}, ContactsState> {
     try {
       let contacts = await ContactService.fetchContacts();
 
-      //pre-format the numbers to local format for performance reasons
+      // //pre-format the numbers to local format for performance reasons
       contacts = contacts.map((c): Contact => {
         return {
           name: c.name,
@@ -92,6 +92,9 @@ export default class Contacts extends React.Component<{}, ContactsState> {
             <Grid.Column>
               <Dimmer inverted active={this.state.loading}>
                 <Loader>Loading</Loader>
+              </Dimmer>
+              <Dimmer inverted active={!!this.state.error}>
+                <Message error>{this.state.error}</Message>
               </Dimmer>
               <Table celled>
                 <Table.Header>

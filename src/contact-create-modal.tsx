@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Contact } from './models/contact';
-import * as ContactService from "./services/contact-service";
-import * as PhoneFormatterService from "./services/phone-formatter-service";
+import ContactService from "./services/contact-service";
+import PhoneFormatterService from "./services/phone-formatter-service";
 import { Button, Modal, Container, Icon, Form, Message, Dimmer, Loader } from 'semantic-ui-react';
 import MaskedInput from "react-maskedinput";
 import './sass/contact-create-modal.scss';
@@ -22,6 +22,7 @@ export interface ContactCreateModelState {
 }
 
 export default class ContactCreateModal extends React.Component<ContactCreateModalProps, ContactCreateModelState> {
+  
   constructor(props: ContactCreateModalProps) {
     super(props);
 
@@ -138,14 +139,14 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
           <Modal.Content>
             <Form onSubmit={() => this.create()}>
               <Form.Field>
-                <Form.Input label='Full Name' maxLength="32" placeholder='Full Name' autoFocus onChange={this.fullNameChanged} error={!this.state.fullNameValid} />
+                <Form.Input label='Full Name' maxLength='32' placeholder='Full Name' autoFocus onChange={this.fullNameChanged} error={!this.state.fullNameValid} />
               </Form.Field>
               <Form.Field control={MaskedInput} label='Phone Number' mask='(111)-111-1111' onChange={this.phoneNumberChanged} error={!this.state.phoneNumberValid}>
               </Form.Field>
               <Form.Field>
-                <Form.Input label='Context' maxLength="32" placeholder='Context' onChange={this.contextChanged} error={!this.state.contextValid} />
+                <Form.Input label='Context' maxLength='32' placeholder='Context' onChange={this.contextChanged} error={!this.state.contextValid} />
               </Form.Field>
-              <input type="submit" style={{ display: 'none' }}/> {/* workaround to make ENTER work */}
+              <input type='submit' style={{ display: 'none' }}/> {/* workaround to make ENTER work */}
             </Form>
             {this.state.error && <Message
               error
@@ -153,8 +154,8 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
             />}
           </Modal.Content>
           <Modal.Actions>
-            <Button color="red" onClick={() => this.props.onClose()}><Icon name="cancel" /> Cancel</Button>
-            <Button color="green" onClick={() => this.create()}><Icon name="checkmark" /> Create</Button>
+            <Button color='red' onClick={() => this.props.onClose()}><Icon name='cancel' /> Cancel</Button>
+            <Button color='green' onClick={() => this.create()}><Icon name='checkmark' /> Create</Button>
           </Modal.Actions>
         </Modal>
       </div>
