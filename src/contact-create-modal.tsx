@@ -7,22 +7,28 @@ import MaskedInput from "react-maskedinput";
 import './sass/contact-create-modal.scss';
 
 export interface ContactCreateModalProps {
-  onContactAdded?: (contact: Contact) => void;
-  onClose: () => void;
-  open: boolean;
+  onContactAdded?: (contact: Contact) => void; // callback for when a new contact has been saved
+  onClose: () => void; // callback on Cancel or Create successfully
+  open: boolean; // Whether to display the modal
 }
 
 export interface ContactCreateModelState {
-  contact: Contact;
-  fullNameValid: boolean;
-  phoneNumberValid: boolean;
-  contextValid: boolean;
-  loading?: boolean;
-  error?: string;
+  contact: Contact; // Info for contact to create
+  fullNameValid: boolean; // Whether the full name field is valid
+  phoneNumberValid: boolean; // Whether the phone number is valid
+  contextValid: boolean; // Whether the context is valid
+  loading?: boolean; // Whether to show the loading indicator
+  error?: string; // Error message to show if something is wrong
 }
 
+/**
+ * Modal component for creating a contact. Handles input of contact info and saving it to the server.
+ * 
+ * @export
+ * @class ContactCreateModal
+ * @extends {React.Component<ContactCreateModalProps, ContactCreateModelState>}
+ */
 export default class ContactCreateModal extends React.Component<ContactCreateModalProps, ContactCreateModelState> {
-  
   constructor(props: ContactCreateModalProps) {
     super(props);
 
@@ -34,6 +40,11 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
     }
   }
   
+  /**
+   * Reset the state of the modal for reuse
+   * 
+   * @memberof ContactCreateModal
+   */
   resetState = () => {
     this.setState({
       contact: { name: '', number: '', context: '' },
@@ -45,24 +56,44 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
     });
   }
 
+  /**
+   * Callback for when full name is changed
+   * 
+   * @memberof ContactCreateModal
+   */
   fullNameChanged = (evt: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       contact: { ...this.state.contact, name: evt.target.value }
     });
   }
   
+  /**
+   * Callback for when phone number is changed
+   * 
+   * @memberof ContactCreateModal
+   */
   phoneNumberChanged = (evt: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       contact: { ...this.state.contact, number: evt.target.value }
     });
   }
   
+  /**
+   * Callback for when context is changed
+   * 
+   * @memberof ContactCreateModal
+   */
   contextChanged = (evt: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       contact: { ...this.state.contact, context: evt.target.value }
     });
   }
 
+  /**
+   * Validate the form to ensure correct field formatting. Returns true is form is valid.
+   * 
+   * @memberof ContactCreateModal
+   */
   validateForm = (): boolean => {
     this.setState({
       error: ''
@@ -71,13 +102,16 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
     let fullNameValid = true, phoneNumberValid = true, contextValid = true;
 
     if(!this.state.contact.name.trim()) {
+      // name must be empty, invalid
       fullNameValid = false;
     }
     if(!this.state.contact.number.trim() ||
-       !PhoneFormatterService.isValidLocalPhoneNumber(this.state.contact.number)) {
+    !PhoneFormatterService.isValidLocalPhoneNumber(this.state.contact.number)) {
+      // phone number must be empty or incomplete, invalid
       phoneNumberValid = false;
     }
     if(!this.state.contact.context.trim()) {
+      // context must be empty, invalid
       contextValid = false;
     }
 
@@ -98,6 +132,11 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
     return valid;
   }
 
+  /**
+   * Creates a contact based on the current state. Performs validation before saving.
+   * 
+   * @memberof ContactCreateModal
+   */
   create = async () => {
     if(!this.validateForm())
       return;
@@ -106,18 +145,25 @@ export default class ContactCreateModal extends React.Component<ContactCreateMod
       loading: true
     });
 
+    // Standardize the number to e164 before saving to server
     const standardizedNumber = PhoneFormatterService.localToStandardFormat(this.state.contact.number);
 
     try {
-      await ContactService.createContact({
+      const contact = {
         name: this.state.contact.name,
         number: standardizedNumber,
         context: this.state.contact.context
-      });
+      };
+
+      await ContactService.createContact(contact);
+      
       this.setState({
        loading: false
       });
-      this.props.onContactAdded(this.state.contact);
+
+      if(this.props.onContactAdded)
+        this.props.onContactAdded(contact);
+      
       this.props.onClose();
     }
     catch(err) {

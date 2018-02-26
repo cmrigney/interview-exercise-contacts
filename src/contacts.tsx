@@ -11,13 +11,20 @@ import './sass/contacts.scss';
 const CONTACTS_PER_PAGE = 10;
 
 interface ContactsState {
-  contacts?: Array<Contact>;
-  currentPage: number;
-  loading: boolean;
-  error?: string;
-  createModalOpen: boolean;
+  contacts?: Array<Contact>; // contact data to show in table
+  currentPage: number; // Current page of table user is on
+  loading: boolean; // Loading indicator to show spinner
+  error?: string; // Error message if anything fails
+  createModalOpen: boolean; // Whether the create modal is showing
 }
 
+/**
+ * Contacts component displays a segment to display and manage contacts
+ * 
+ * @export
+ * @class Contacts
+ * @extends {React.Component<{}, ContactsState>}
+ */
 export default class Contacts extends React.Component<{}, ContactsState> {
   constructor(props: {}) {
     super(props);
@@ -28,14 +35,21 @@ export default class Contacts extends React.Component<{}, ContactsState> {
       currentPage: 1
     };
 
+    // Start fetch of contact data
     this.fetchContactData();
   }
 
-  fetchContactData = async () => {
+  /**
+   * Gets contact data from the server and then updates the state.
+   * 
+   * @memberof Contacts
+   */
+  fetchContactData = async (): Promise<void> => {
     try {
       let contacts = await ContactService.fetchContacts();
 
-      // //pre-format the numbers to local format for performance reasons
+      // We want to show the phone numbers in local format
+      // pre-format the numbers to local format for performance reasons
       contacts = contacts.map((c): Contact => {
         return {
           name: c.name,
@@ -55,17 +69,28 @@ export default class Contacts extends React.Component<{}, ContactsState> {
         loading: false,
         error: 'An error occured retreiving the contacts. Please refresh the page and try again.'
       });
+      // Log error for records
       LoggingService.logError(err);
     }
   }
 
-  getNumberOfPages = () => {
+  /**
+   * Get the number of pages total for all contacts
+   * 
+   * @memberof Contacts
+   */
+  getNumberOfPages = (): number => {
     if(!this.state.contacts)
       return 1;
     else
       return Math.ceil(this.state.contacts.length / CONTACTS_PER_PAGE);
   }
 
+  /**
+   * Get a subset of contacts to display depending on the current page number
+   * 
+   * @memberof Contacts
+   */
   getPagedContacts = () => {
     if(!this.state.contacts)
       return this.state.contacts;
@@ -91,7 +116,7 @@ export default class Contacts extends React.Component<{}, ContactsState> {
           <Grid.Row className="contacts-row">
             <Grid.Column>
               <Dimmer inverted active={this.state.loading}>
-                <Loader>Loading</Loader>
+                <Loader>Loading...</Loader>
               </Dimmer>
               <Dimmer inverted active={!!this.state.error}>
                 <Message error>{this.state.error}</Message>
