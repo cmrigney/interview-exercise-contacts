@@ -1,6 +1,6 @@
-# Truly Exercise
+# Coding Exercise for Interview
 
-Exercise for Truly interview.
+Entirely front-end code using React. Written with TypeScript, SASS, and Webpack. Tests use jest.
 
 Project structure:
 
